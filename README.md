@@ -41,8 +41,7 @@ The project uses the Maternal Mortality and Postpartum Haemorrhage Dataset, crea
 
 The variables cover maternal demographics, pregnancy history, antenatal care, labour and delivery details, complications, and interventions. The target variable is `pph`, which indicates whether postpartum haemorrhage occurred.
 
-> **[VISUAL: Insert Figure 3.2 — "Snippet of the Maternal Postpartum Haemorrhage Dataset"]**
-> This gives readers a quick look at what the raw data actually looks like before any cleaning.
+<img width="975" height="285" alt="image" src="https://github.com/user-attachments/assets/4dca3822-371c-4a23-9e9b-3fd35c1f72e1" />
 
 ### Data Preprocessing
 
@@ -57,6 +56,13 @@ Preprocessing followed these steps, in order:
 
 ## Methodology
 
+<img width="975" height="580" alt="image" src="https://github.com/user-attachments/assets/29b1a21d-ba99-42e6-84fb-ff3e65d9fcd6" />
+
+
+<img width="975" height="564" alt="image" src="https://github.com/user-attachments/assets/1e83d5b6-7b3c-4859-b45e-991df4a85995" />
+
+
+
 ### 1. Data Preparation
 
 Before modelling, five engineered features were created to give the models a more clinically meaningful view of each patient, rather than relying on many raw variables independently:
@@ -67,14 +73,26 @@ Before modelling, five engineered features were created to give the models a mor
 - **Antenatal Care (ANC) Score** — combines number of antenatal visits with whether the patient completed at least four visits.
 - **Delivery Complexity Score** — combines previous caesarean history with the current delivery method.
 
-> **[VISUAL: Insert Figure 4.3 — "Top 20 Important Features"]**
+<img width="803" height="658" alt="image" src="https://github.com/user-attachments/assets/2dc223f8-1e60-4819-a6e5-652e8ff16323" />
+
+
+<img width="927" height="553" alt="image" src="https://github.com/user-attachments/assets/47d204a5-6bed-4ae9-8d25-21152e14561c" />
+
+
 > This shows which variables, including the engineered scores, the model relied on most.
 
 ### 2. Model Development
 
 **Random Forest** was chosen for its strong baseline accuracy and its ability to handle a mix of numeric and categorical data. It builds many decision trees on random subsets of data and features, which reduces overfitting. It was implemented with 300 trees (`n_estimators = 300`).
 
+<img width="592" height="444" alt="image" src="https://github.com/user-attachments/assets/48d63374-f379-4f50-adb8-6566ff6177c4" />
+
+
 **XGBoost** was chosen for its ability to catch harder, less obvious patterns. Unlike Random Forest, where trees are built independently, XGBoost builds trees sequentially, with each new tree correcting the mistakes of the ones before it. It was also implemented with 300 estimators.
+
+<img width="602" height="461" alt="image" src="https://github.com/user-attachments/assets/da4d91f1-8553-40e3-a579-f421cfeea5cf" />
+
+
 
 ### 3. Model Evaluation
 
@@ -85,6 +103,9 @@ Each model was evaluated using five standard classification metrics: Accuracy, P
 Rather than picking one model, the final system combines the predictions of both Random Forest and XGBoost using **weighted soft voting** — each model outputs a probability, and the two probabilities are combined using a weighted average.
 
 Four different weighting combinations were tested. The configuration that used **30% Random Forest (Weighted) + 70% XGBoost (SMOTE)** was selected as the final model, because it achieved the highest recall (43.45%) among the tested combinations — meaning it caught more true PPH cases than the alternatives, even though a couple of other weightings scored marginally higher on F1-score and ROC-AUC. For a system meant to flag at-risk patients, missing fewer real cases mattered more than a slightly higher overall score.
+
+<img width="632" height="281" alt="image" src="https://github.com/user-attachments/assets/e11c1755-08ff-4402-bd2d-4ad11c85c2d3" />
+
 
 ### 5. Risk Classification
 
@@ -111,8 +132,18 @@ The table below shows the final comparison between the individual models and the
 
 *(Individual RF-Weighted and XGBoost-SMOTE standalone scores appear in the document's broader model comparison table alongside several other variants — see "Notes for Esther" if you'd like me to pull specific rows into this table.)*
 
-> **[VISUAL: Insert Figure 4.14 — "Confusion Matrix Comparison of the Random Forest, XGBoost, and Hybrid Random Forest–XGBoost Models"]**
-> This shows exactly how many PPH cases each model caught versus missed, which is more concrete than the summary metrics alone.
+<img width="631" height="578" alt="image" src="https://github.com/user-attachments/assets/9b328c85-d2d8-48b4-a227-da47d8e4c2f1" />
+
+
+<img width="625" height="605" alt="image" src="https://github.com/user-attachments/assets/057573f7-9f90-452a-b47b-9c4181e08451" />
+
+
+
+<img width="653" height="683" alt="image" src="https://github.com/user-attachments/assets/ae346698-fc3d-4304-b4ca-fda672ab0d4a" />
+
+
+<img width="1063" height="423" alt="image" src="https://github.com/user-attachments/assets/38dfdad7-9b80-48a0-8d11-2f4db4caff68" />
+
 
 In practical terms: on a test set of roughly 6,000 patients, the hybrid model correctly identified 272 out of 626 actual PPH cases, with 354 missed (false negatives) and 27 patients incorrectly flagged as high risk (false positives). The hybrid model caught more true PPH cases than either Random Forest or XGBoost alone (263 and 268, respectively), which is why it was selected — but the recall of 43.45% means the model still misses more than half of actual PPH cases. This is an honest limitation of the system, not a small one, and is discussed further below.
 
@@ -125,14 +156,14 @@ SHAP (SHapley Additive exPlanations) was used to explain the XGBoost (SMOTE) com
 - **Globally**, to understand which features matter most across the whole dataset.
 - **Locally**, to explain a single patient's individual prediction.
 
-> **[VISUAL: Insert Figure 4.15 — "SHAP Beeswarm Plot Showing Global Feature Contributions"]**
-> This shows, across all patients, which features had the biggest overall impact on the model's predictions and in which direction.
+<img width="922" height="677" alt="image" src="https://github.com/user-attachments/assets/640450af-e483-42a9-8a65-7dcf039f358f" />
 
-> **[VISUAL: Insert Figure 4.16 — "SHAP Global Feature Importance Bar Plot"]**
-> This ranks features by their average impact, making it easy to see the top drivers of the model at a glance.
 
-> **[VISUAL: Insert Figure 4.17 — "SHAP Waterfall Plot for Individual Patient Prediction"]**
-> This shows how a single patient's individual risk score was built up, feature by feature, which is the kind of explanation a clinician would actually want to see for one patient in front of them.
+<img width="848" height="733" alt="image" src="https://github.com/user-attachments/assets/cc7dc2d9-1b45-47e1-934c-734459cd0e8c" />
+
+
+<img width="975" height="580" alt="image" src="https://github.com/user-attachments/assets/ed6682fb-a90c-4b46-8876-c1f32d5b5562" />
+
 
 The results showed that the Obstetric Risk Score was the single most influential feature overall, followed by maternal age and the Pregnancy Load Index. This is a meaningful result on its own: it suggests that the engineered features actually captured something clinically useful, not just noise.
 
@@ -140,8 +171,8 @@ The results showed that the Obstetric Risk Score was the single most influential
 
 ## Clinical Decision Support Workflow
 
-> **[VISUAL: Insert Figure 3.6 — "Flow Chart Diagram for the AI-Based CDSS for Postpartum Haemorrhage"]**
-> This shows the same flow as designed in your original system architecture, which is worth including alongside the summary above.
+<img width="880" height="1192" alt="image" src="https://github.com/user-attachments/assets/8833cb82-8be0-47b3-b891-6c49349d6ee7" />
+
 
 ## Results and Key Findings
 
@@ -149,11 +180,11 @@ The results showed that the Obstetric Risk Score was the single most influential
 - The engineered clinical features, especially the Obstetric Risk Score and Pregnancy Load Index, were consistently the most influential predictors — suggesting that combining related clinical variables into composite scores added real value, rather than just adding complexity.
 - Despite the improvement, recall stayed modest at 43.45%, meaning the system still misses a significant share of true PPH cases. The document is explicit about this: the system should be treated as a decision-support tool, not a replacement for clinical judgement.
 
-> **[VISUAL: Insert Figure 4.21 — "Prediction Results Dashboard"]**
-> Showing what a prediction actually looks like in the interface makes the project feel real and usable, not just theoretical.
+<img width="1049" height="445" alt="image" src="https://github.com/user-attachments/assets/2fbfd6ea-73e4-4973-a6d2-4bd647776cfe" />
 
-> **[VISUAL: Insert Figure 4.24 — "Explainable (XAI) Interface"]**
-> This shows how the SHAP explanation is actually surfaced to a clinician inside the web app, not just in a notebook.
+
+<img width="1045" height="473" alt="image" src="https://github.com/user-attachments/assets/4354c254-b73c-4fc4-ae92-634da6366625" />
+
 
 ## Technologies Used
 
@@ -216,14 +247,3 @@ This project is an academic research prototype developed as part of a final-year
 
 **Esther Matthew**
 [LinkedIn](https://www.linkedin.com/in/esther-matthew) · [GitHub](https://github.com/Queeenest147) · [Medium](https://esther-matthew.medium.com)
-
-## Recommended Visuals to Add
-
-- **Figure 3.2 — Snippet of the Maternal Postpartum Haemorrhage Dataset:** gives readers a concrete look at the raw data.
-- **Figure 4.3 — Top 20 Important Features:** shows what the model actually relied on.
-- **Figure 4.14 — Confusion Matrix Comparison:** makes the recall/false-negative limitation concrete rather than abstract.
-- **Figure 4.15 — SHAP Beeswarm Plot:** best single visual for explaining global feature impact.
-- **Figure 4.16 — SHAP Global Feature Importance Bar Plot:** a cleaner, simpler companion to the beeswarm plot.
-- **Figure 4.17 — SHAP Waterfall Plot:** shows a single patient's explanation, which is the most relatable SHAP visual for a non-technical reader.
-- **Figure 3.6 — Flow Chart Diagram:** visually reinforces the workflow section.
-- **Figure 4.21 — Prediction Results Dashboard** and **Figure 4.24 — Explainable (XAI) Interface:** show the actual working product, not just the model.
